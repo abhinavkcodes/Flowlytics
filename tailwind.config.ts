@@ -3,78 +3,54 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: "class",
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
-        mono: ["var(--font-jetbrains)", "monospace"],
-        display: ["var(--font-outfit)", "sans-serif"],
-      },
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        bg: "var(--bg)",
+        bg1: "var(--bg1)",
+        bg2: "var(--bg2)",
+        surface: "var(--surface)",
+        border: "var(--border)",
+        "border-hi": "var(--border-hi)",
+        text: "var(--text)",
+        "text-mid": "var(--text-mid)",
+        "text-dim": "var(--text-dim)",
+        blue: "var(--blue)",
+        "blue-hi": "var(--blue-hi)",
+        cyan: "var(--cyan)",
+        green: "var(--green)",
+        lime: "var(--lime)",
+        amber: "var(--amber)",
+        orange: "var(--orange)",
+        rose: "var(--rose)",
+      purple: "var(--purple)",
+        pink: "var(--pink)",
+        "brand-gray": "#1A1A1A",
       },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+      fontFamily: {
+        display: ["Cabinet Grotesk", "Outfit", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        sans: ["Outfit", "sans-serif"],
+        aurora: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+        fadeUp: {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "none" },
         },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(20px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "fade-in": {
+        fadeIn: {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% center" },
-          "100%": { backgroundPosition: "200% center" },
-        },
-        pulse: {
+        pulseSoft: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.4" },
+        },
+        spinSlow: {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
@@ -82,17 +58,15 @@ const config: Config = {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-up": "fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both",
-        "fade-in": "fade-in 0.4s ease both",
-        shimmer: "shimmer 2s linear infinite",
-        "pulse-slow": "pulse 2s ease-in-out infinite",
+        fadeUp: "fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both",
+        fadeIn: "fadeIn 0.4s ease both",
+        pulseSoft: "pulseSoft 2s infinite",
+        spinSlow: "spinSlow 1s linear infinite",
         float: "float 3s ease-in-out infinite",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 };
 
 export default config;
