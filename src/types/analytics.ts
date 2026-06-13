@@ -1,80 +1,100 @@
-export interface CommitTrend {
+export interface CommitTrendPoint {
   date: string;
   commits: number;
-  additions: number;
-  deletions: number;
+  additions?: number;
+  deletions?: number;
 }
 
-export interface StreakData {
+export interface ProductivityStats {
+  totalCommits: number;
   currentStreak: number;
   longestStreak: number;
-  totalActiveDays: number;
-  consistencyScore: number;
-  lastActiveDate: string | null;
+  consistencyScore: number; // 0-100
+  mostProductiveDay: string; // e.g. "Saturday"
+  mostProductiveHour: number; // 0-23
+  monthlyTrend: CommitTrendPoint[];
+  weeklyTrend: CommitTrendPoint[];
+  hourlyDistribution: { hour: number; commits: number }[];
 }
 
-export interface LanguageDistribution {
-  name: string;
-  percentage: number;
-  color: string;
-  commits: number;
-  repos: number;
+export interface HabitStats {
+  timeOfDayDistribution: {
+    label: string;
+    range: [number, number];
+    percentage: number;
+  }[];
+  weekdayVsWeekend: {
+    weekday: number;
+    weekend: number;
+  };
+  languageDistribution: {
+    language: string;
+    percentage: number;
+    color: string;
+  }[];
+  repositoryActivityPattern: {
+    repoName: string;
+    activityScore: number;
+  }[];
 }
 
-export interface ProductivityMetrics {
-  totalCommits: number;
+export interface RepositoryHealthScore {
+  repoId: string;
+  repoName: string;
+  healthScore: number; // 0-100
+  commitFrequencyScore: number;
+  starsGrowth: number;
+  forksGrowth: number;
+  recencyScore: number;
+  trend: number; // percentage change
+}
+
+export interface RepositoryIntelligence {
   totalRepos: number;
-  totalPRs: number;
+  activeRepos: number;
   totalStars: number;
   totalForks: number;
-  totalReviews: number;
-  avgCommitsPerDay: number;
-  mostProductiveDay: string;
-  mostProductiveHour: number;
-  consistencyScore: number;
+  topRepositories: RepositoryHealthScore[];
+  radarMetrics: { metric: string; value: number }[];
 }
 
-export interface HabitData {
-  timeOfDay: {
-    morning: number;   // 6-12
-    afternoon: number; // 12-18
-    evening: number;   // 18-22
-    night: number;     // 22-6
-  };
-  dayOfWeek: Record<string, number>;
-  weekdayVsWeekend: { weekday: number; weekend: number };
-  hourlyDistribution: Array<{ hour: number; commits: number }>;
-}
-
-export interface RepositoryHealth {
-  id: string;
-  name: string;
-  score: number;
-  stars: number;
-  forks: number;
-  language: string | null;
-  commitFrequency: number;
-  lastCommit: string | null;
-  trendPercent: number;
-}
-
-export interface GrowthMetrics {
-  frontend: number;
-  backend: number;
-  devops: number;
-  openSource: number;
-  architecture: number;
-  testing: number;
-}
-
-export interface DashboardStats {
-  totalCommits: number;
-  totalRepos: number;
+export interface PullRequestStats {
   totalPRs: number;
-  totalStars: number;
-  currentStreak: number;
-  longestStreak: number;
-  consistencyScore: number;
-  mergeRate: number;
-  topLanguage: string;
+  mergeRate: number; // 0-100
+  avgPRSizeLines: number;
+  avgCycleTimeHours: number;
+  prQualityScore: number; // 0-10
+  reviewStats: {
+    avgCommentsPerPR: number;
+    avgReviewTurnaroundHours: number;
+    approvalRate: number;
+  };
+  monthlyBreakdown: {
+    month: string;
+    merged: number;
+    open: number;
+    closed: number;
+  }[];
+}
+
+export interface GrowthMetric {
+  category: "frontend" | "backend" | "devops" | "openSource" | "architecture" | "testing";
+  label: string;
+  level: number; // 0-100
+  trend: number; // percentage change over lookback period
+}
+
+export interface DeveloperGrowth {
+  skills: GrowthMetric[];
+  technologyAdoption: { language: string; usagePercentage: number; trend: number }[];
+  timeline: { year: string; event: string; primaryLanguage: string }[];
+}
+
+export interface HealthScoreBreakdown {
+  overall: number;
+  components: {
+    name: string;
+    score: number;
+    weight: number;
+  }[];
 }
