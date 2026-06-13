@@ -8,25 +8,148 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
+  id        String   @id @default(cuid())
+  githubId  String   @unique
+  username  String   @unique
+  email     String?  @unique
+  avatar    String?
+  name      String?
+  bio       String?
+  company   String?
+  location  String?
+  website   String?
+  followers   Int @default(0)
+  following   Int @default(0)
+  publicRepos Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  email       String?  @unique
-  name        String?
-  image       String?
+  accounts      Account[]
+  sessions      Session[]
+  repositories  Repository[]
+  insights      Insight[]
+  wrappedSnapshots WrappedSnapshot[]
 
-  githubId    String?  @unique
-  username    String?  @unique
-  avatar      String?
+  @@map("users")
+}
 
-  bio         String?
-  company     String?
-  location    String?
-  website     String?
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-  followers   Int      @default(0)
-  following   Int      @default(0)
-  publicRepos Int      @default(0)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Repository {
+  id           String    @id @default(cuid())
+  userId       String
+  githubRepoId String    @unique
+  name         String
+  fullName     String
+  description  String?
+  stars        Int       @default(0)
+  forks        Int       @default(0)
+  language     String?
+  isPrivate    Boolean   @default(false)
+  isFork       Boolean   @default(false)
+  healthScore  Float?    @default(0)
+  createdAt    DateTime
+  updatedAt    DateTime
+  pushedAt     DateTime?
+  syncedAt     DateTime  @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commits     Commit[]
+  pullRequests PullRequest[]
+
+  @@index([userId])
+  @@map("repositories")
+}
+
+model Commit {
+  id        String   @id @default(cuid())
+  repoId    String
+  sha       String
+  message   String
+  additions Int      @default(0)
+  deletions Int      @default(0)
+  date      DateTime
+
+  repository Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([repoId, sha])
+  @@index([repoId, date])
+  @@map("commits")
+}
+
+model PullRequest {
+  id             String    @id @default(cuid())
+  repoId         String
+  githubPrId     Int
+  title          String
+  state          String    @default("open") // open | closed | merged
+  merged         Boolean   @default(false)
+  additions      Int       @default(0)
+  deletions      Int       @default(0)
+  reviewComments Int       @default(0)
+  createdAt      DateTime
+  mergedAt       DateTime?
+  closedAt       DateTime?
+
+  repository Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([repoId, githubPrId])
+  @@index([repoId])
+  @@map("pull_requests")
+}
+
+model Insight {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // productivity_summary | weekly_report | growth_analysis | strengths_weaknesses | recommendations
+  report    String   @db.Text
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("insights")
+}
+
+model WrappedSnapshot {
+  id        String   @id @default(cuid())
+  userId    String
+  year      Int
+  data      Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year])
+  @@map("wrapped_snapshots")
 }
