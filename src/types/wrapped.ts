@@ -1,22 +1,30 @@
-export interface WrappedData {
-  year: number;
-  totalCommits: number;
-  longestStreak: number;
-  topLanguage: string;
-  topRepository: string;
-  mostProductiveMonth: string;
-  totalStars: number;
-  totalPRs: number;
-  totalLinesWritten: number;
-  totalReposCreated: number;
-  skills: Array<{ skill: string; level: number; color: string }>;
-  languages: Array<{ name: string; pct: number; color: string }>;
-  monthlyCommits: Array<{ month: string; commits: number }>;
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: ApiError;
 }
 
-export interface ShareCardData {
-  username: string;
-  avatar: string;
-  year: number;
-  stats: Array<{ label: string; value: string; icon: string }>;
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: unknown;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+export type DateRangeFilter = {
+  from?: string;
+  to?: string;
+};
+
+export interface SyncStatusResponse {
+  status: "idle" | "syncing" | "completed" | "failed";
+  lastSyncedAt: string | null;
+  progress?: number;
 }
