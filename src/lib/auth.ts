@@ -2,9 +2,11 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
+import type { GitHubProfile } from "@/types/next-auth";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   providers: [
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID!,
@@ -25,16 +27,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           select: { username: true, avatar: true, githubId: true },
         });
         if (dbUser) {
-          (session.user as any).username = dbUser.username;
-          (session.user as any).avatar = dbUser.avatar;
-          (session.user as any).githubId = dbUser.githubId;
+          session.user.username = dbUser.username;
+          session.user.avatar = dbUser.avatar;
+          session.user.githubId = dbUser.githubId;
         }
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ account, profile }) {
       if (account?.provider === "github" && profile) {
-        const ghProfile = profile as any;
+        const ghProfile = profile as unknown as GitHubProfile;
         await prisma.user.upsert({
           where: { githubId: String(ghProfile.id) },
           update: {
