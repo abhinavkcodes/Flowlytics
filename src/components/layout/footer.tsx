@@ -1,9 +1,13 @@
 export function Footer() {
   return (
-    <footer className="border-t py-8">
-      <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Flowlytics. All rights reserved.
-      </div>
+    <footer
+      className="mt-auto px-6 py-8 text-center text-sm"
+      style={{
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        color: "#3d4a63",
+      }}
+    >
+      © {new Date().getFullYear()} Flowlytics. All rights reserved.
     </footer>
   );
 }
