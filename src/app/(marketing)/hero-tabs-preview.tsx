@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef, type MouseEvent } from "react";
 import {
   Activity,
   Brain,
@@ -27,21 +27,162 @@ const TABS: { id: TabId; label: string; Icon: typeof Activity }[] = [
   { id: "insights", label: "AI Insights", Icon: Sparkles },
 ];
 
-const HEAT_LEVELS = [
-  0,1,2,0,3,1,0, 1,2,3,4,2,1,0, 2,3,4,5,3,2,1, 1,2,3,4,3,2,1,
-  0,1,2,3,2,1,0, 2,3,4,3,2,1,0, 1,2,3,4,5,4,2, 2,3,2,1,0,1,2,
-  3,4,3,2,1,0,1, 2,3,4,5,4,3,2,
-];
+/* ── Minimal GitHub-style heatmap (no container box) ─────────────────── */
+type ContributionDay = {
+  color: string;
+  contributionCount: number;
+  contributionLevel: string;
+  date: string;
+};
 
-function heatColor(level: number) {
-  switch (level) {
-    case 0: return "rgba(255,255,255,.04)";
-    case 1: return "#1a2e52";
-    case 2: return "#28508f";
-    case 3: return T.blue;
-    case 4: return "#60a5fa";
-    default: return "#93c5fd";
+const USERNAME = "abhinavkcodes";
+
+function useGithubContributions() {
+  const [weeks, setWeeks] = useState<ContributionDay[][]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetch_ = async () => {
+      try {
+        const res = await fetch(
+          `https://github-contributions-api.deno.dev/${USERNAME}.json?t=${Date.now()}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        if (mounted) setWeeks(data.contributions ?? []);
+      } catch {
+        // silently fail – heatmap just won't render
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetch_();
+    const iv = setInterval(fetch_, 60_000);
+    return () => { mounted = false; clearInterval(iv); };
+  }, []);
+
+  return { weeks, loading };
+}
+
+function MinimalHeatmap() {
+  const { weeks, loading } = useGithubContributions();
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [tooltip, setTooltip] = useState<{ label: string; left: number; top: number } | null>(null);
+
+  const totalContributions = useMemo(
+    () => weeks.flat().reduce((s, d) => s + d.contributionCount, 0),
+    [weeks]
+  );
+
+  const thresholds = useMemo(() => {
+    const counts = weeks.flat().map((d) => d.contributionCount).filter((c) => c > 0).sort((a, b) => a - b);
+    if (!counts.length) return { q1: 0, q2: 0, q3: 0 };
+    return {
+      q1: counts[Math.floor(counts.length * 0.25)],
+      q2: counts[Math.floor(counts.length * 0.5)],
+      q3: counts[Math.floor(counts.length * 0.75)],
+    };
+  }, [weeks]);
+
+  const cellColor = (count: number) => {
+    if (count === 0) return "rgba(255,255,255,.04)";
+    const { q1, q2, q3 } = thresholds;
+    if (count <= q1) return "#0d2a4d";
+    if (count <= q2) return "#0969DA";
+    if (count <= q3) return "#58A6FF";
+    return "#AED6F1";
+  };
+
+  const cellShadow = (count: number) =>
+    count > 0 ? "0 0 3px rgba(88,166,255,0.18)" : undefined;
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-4 font-mono text-[10px] uppercase tracking-widest text-text-dim">
+        <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
+        Loading contributions…
+      </div>
+    );
   }
+
+  return (
+    <div ref={chartRef} className="relative w-full overflow-x-auto">
+      {/* tooltip */}
+      {tooltip && (
+        <div
+          className="pointer-events-none absolute z-20 rounded-lg bg-black px-2 py-1 text-[10px] text-white"
+          style={{ left: tooltip.left, top: tooltip.top, transform: "translate(-50%, -110%)" }}
+        >
+          {tooltip.label}
+        </div>
+      )}
+
+      {/* header row */}
+      <div className="mb-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-text-dim">
+        <span>{totalContributions.toLocaleString()} contributions · last year</span>
+        <div className="flex items-center gap-1">
+          <span>Less</span>
+          {["rgba(255,255,255,.04)", "#0d2a4d", "#0969DA", "#58A6FF", "#AED6F1"].map((c, i) => (
+            <span key={i} className="inline-block h-2.5 w-2.5 rounded-[2px]" style={{ background: c }} />
+          ))}
+          <span>More</span>
+        </div>
+      </div>
+
+      {/* month labels */}
+      <div className="relative mb-1 h-4 text-[9px] text-text-dim">
+        {weeks.map((week, wi) => {
+          const first = week[0];
+          if (!first) return null;
+          const month = new Date(first.date).toLocaleString("en-US", { month: "short" });
+          const prev = wi > 0 ? new Date(weeks[wi - 1][0]?.date).toLocaleString("en-US", { month: "short" }) : null;
+          if (month === prev) return null;
+          return (
+            <span key={wi} className="absolute" style={{ left: wi * 15 + 28 }}>
+              {month}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* grid */}
+      <div className="flex gap-[4px]">
+        {/* day labels */}
+        <div className="grid grid-rows-7 text-[8px] text-text-dim">
+          {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
+            <div key={i} className="flex h-[11px] w-6 items-center justify-end pr-1">{d}</div>
+          ))}
+        </div>
+
+        {/* cells */}
+        <div className="flex gap-[3px]">
+          {weeks.map((week, wi) => (
+            <div key={wi} className="grid grid-rows-7 gap-[3px]">
+              {week.map((day) => {
+                const label = `${day.contributionCount} contribution${day.contributionCount === 1 ? "" : "s"} on ${new Date(day.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}`;
+                return (
+                  <div
+                    key={day.date}
+                    aria-label={label}
+                    className="h-[11px] w-[11px] rounded-[2px] transition-all duration-200 hover:scale-125"
+                    style={{ background: cellColor(day.contributionCount), boxShadow: cellShadow(day.contributionCount) }}
+                    onMouseMove={(e: MouseEvent<HTMLDivElement>) => {
+                      if (!chartRef.current) return;
+                      const rect = chartRef.current.getBoundingClientRect();
+                      setTooltip({ label, left: e.clientX - rect.left, top: e.clientY - rect.top });
+                    }}
+                    onMouseLeave={() => setTooltip(null)}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ── Shared: circular progress ring ─────────────────────────────────── */
@@ -194,26 +335,8 @@ function ProductivityPanel() {
         </div>
       </div>
 
-      <div className="mb-4 rounded-xl p-4" style={{ background: "rgba(255,255,255,.02)", border: "1px solid rgba(255,255,255,.06)" }}>
-        <div className="mb-3 flex items-center justify-between">
-          <SectionLabel>Contribution activity — last 10 weeks</SectionLabel>
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-text-dim">
-            <span>Less</span>
-            {[0,1,2,3,4,5].map((l) => (
-              <span key={l} className="h-2.5 w-2.5 rounded-[2px]" style={{ background: heatColor(l) }} />
-            ))}
-            <span>More</span>
-          </div>
-        </div>
-        <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-          {HEAT_LEVELS.map((level, i) => (
-            <div
-              key={i}
-              className="aspect-square rounded-[3px] transition-transform duration-200 hover:scale-125"
-              style={{ background: heatColor(level) }}
-            />
-          ))}
-        </div>
+      <div className="mb-4">
+        <MinimalHeatmap />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
