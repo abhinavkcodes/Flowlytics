@@ -10,7 +10,7 @@ const INTEGRATIONS = [
 
 export function IntegrationsStrip() {
   return (
-    <div className="fadeUp mt-20 border-t border-white/[0.06] pt-12" style={{ animationDelay: ".7s" }}>
+    <div className="fadeUp mt-24 border-t border-white/[0.06] pt-12" style={{ animationDelay: ".7s" }}>
       <p className="mb-8 text-center font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-text-dim">
         Built on tools you already trust
       </p>
