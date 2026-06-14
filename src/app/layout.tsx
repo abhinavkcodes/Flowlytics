@@ -17,17 +17,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    images: [siteConfig.ogImage],
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteConfig.name,
-    description: siteConfig.description,
-    images: [siteConfig.ogImage],
-  },
-  icons: {
-    icon: "/icons/favicon.ico",
   },
 };
 
@@ -38,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-[var(--bg)] text-[var(--text)] font-sans antialiased">
+      <body style={{ background: "#03050a", color: "#eef2ff", fontFamily: "'Outfit', sans-serif" }}>
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <QueryProvider>{children}</QueryProvider>
