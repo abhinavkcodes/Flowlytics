@@ -1,250 +1,110 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Circle,
-  Chrome,
-  Github,
-  Eye,
-  EyeOff,
-  type LucideIcon,
-} from "lucide-react";
-
-const VIDEO_SRC =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
-
-const heroContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const heroItemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
-};
+import { signIn } from "next-auth/react";
+import { Github, Activity, Brain, Package, Sparkles } from "lucide-react";
 
 export default function SignInPage() {
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
-    <main className="font-aurora flex min-h-screen w-full bg-black text-white selection:bg-white/30 antialiased p-2 transition-all duration-500 lg:h-screen lg:overflow-hidden lg:p-4">
-      {/* Left Column — Hero & Background Video */}
-      <div className="relative hidden w-[52%] flex-col items-center justify-end overflow-hidden rounded-3xl px-12 pb-32 shadow-2xl lg:flex h-full">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src={VIDEO_SRC} type="video/mp4" />
-        </video>
-
-        <motion.div
-          className="relative z-10 w-full max-w-xs space-y-8"
-          variants={heroContainerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div
-            variants={heroItemVariants}
-            className="flex items-center gap-2"
-          >
-            <Circle className="h-5 w-5 fill-white text-white" />
-            <span className="text-xl font-semibold tracking-tight">
-              Aurora
-            </span>
-          </motion.div>
-
-          <motion.div variants={heroItemVariants} className="space-y-2">
-            <h1 className="whitespace-nowrap text-4xl font-medium tracking-tight">
-              Join Aurora
+    <main className="flex min-h-screen bg-[#03050a]">
+      {/* Left panel */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #080d18 0%, #0d1526 100%)" }}>
+        <div
+          className="pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-20"
+          style={{ background: "radial-gradient(circle, #3b82f6, transparent 70%)", filter: "blur(80px)" }}
+        />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] text-sm font-bold text-white"
+              style={{ background: "linear-gradient(135deg,#1d4ed8,#7c3aed)" }}>F</div>
+            <span className="text-lg font-bold text-white">Flowlytics</span>
+          </div>
+        </div>
+        <div className="relative z-10 space-y-8">
+          <div>
+            <h1 className="text-4xl font-bold text-white leading-tight tracking-tight mb-3">
+              Your GitHub activity,<br />
+              <span className="text-blue-400">finally understood.</span>
             </h1>
-            <p className="px-4 text-sm leading-relaxed text-white/60">
-              Follow these 3 quick phases to activate your space.
+            <p className="text-[#8892aa] text-base leading-relaxed">
+              Connect your GitHub account and get real productivity scores, habit insights, and AI-generated growth reports.
             </p>
-          </motion.div>
-
-          <motion.div variants={heroItemVariants}>
-            <StepItem number={1} text="Register your identity" active />
-          </motion.div>
-          <motion.div variants={heroItemVariants}>
-            <StepItem number={2} text="Configure your studio" />
-          </motion.div>
-          <motion.div variants={heroItemVariants}>
-            <StepItem number={3} text="Finalize your profile" />
-          </motion.div>
-        </motion.div>
+          </div>
+          <div className="space-y-3">
+            {[
+              { Icon: Activity, label: "Commit trends & streak tracking" },
+              { Icon: Brain, label: "Coding habit & time-of-day analysis" },
+              { Icon: Package, label: "Repository health scores" },
+              { Icon: Sparkles, label: "AI-generated productivity reports" },
+            ].map(({ Icon, label }) => (
+              <div key={label} className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg"
+                  style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                  <Icon size={15} strokeWidth={1.75} className="text-blue-400" />
+                </div>
+                <span className="text-sm text-[#8892aa]">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="relative z-10 text-xs text-[#3d4a63]">
+          Read-only GitHub access · Free forever for individual developers
+        </p>
       </div>
 
-      {/* Right Column — Sign Up Form */}
-      <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-12 sm:px-12 lg:overflow-hidden lg:px-16 lg:py-6 xl:px-24">
-        <motion.div
-          className="w-full max-w-xl space-y-8 sm:space-y-10 lg:space-y-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div className="space-y-2">
-            <h2 className="text-3xl font-medium tracking-tight">
-              Create New Profile
-            </h2>
-            <p className="text-sm text-white/40">
-              Input your basic details to begin the journey.
+      {/* Right panel */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="lg:hidden flex items-center gap-2 mb-8">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] text-sm font-bold text-white"
+              style={{ background: "linear-gradient(135deg,#1d4ed8,#7c3aed)" }}>F</div>
+            <span className="text-lg font-bold text-white">Flowlytics</span>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Connect your GitHub</h2>
+            <p className="text-sm text-[#8892aa]">
+              Sign in with GitHub to start tracking your developer productivity.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <SocialButton icon={Chrome} label="Google" />
-            <SocialButton icon={Github} label="Github" />
+          <button
+            onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+            className="w-full flex items-center justify-center gap-3 rounded-xl px-6 py-4 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{
+              background: "linear-gradient(135deg, #1f2937, #111827)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+            }}
+          >
+            <Github size={18} strokeWidth={2} />
+            Continue with GitHub
+          </button>
+
+          <div className="space-y-3 rounded-xl p-4"
+            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#3d4a63]">What we access</p>
+            <ul className="space-y-2 text-xs text-[#8892aa]">
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> Public & private repo list
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> Commit history & metadata
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> Pull request data
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-red-400">✗</span> We never write to your repos
+              </li>
+            </ul>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-black px-4 text-xs font-medium uppercase tracking-widest text-white/40">
-                Or
-              </span>
-            </div>
-          </div>
-
-          <form className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <InputGroup label="First Name" placeholder="John" type="text" />
-              <InputGroup label="Last Name" placeholder="Doe" type="text" />
-            </div>
-
-            <InputGroup
-              label="Email"
-              placeholder="john@example.com"
-              type="email"
-            />
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="h-11 w-full rounded-xl border-none bg-brand-gray px-4 pr-11 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              <p className="text-xs text-white/30">
-                Requires at least 8 symbols.
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              className="mt-4 h-14 w-full rounded-xl bg-white font-semibold text-black transition-transform hover:bg-white/90 active:scale-[0.98]"
-            >
-              Create Account
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-white/40">
-            Member of the team?{" "}
-            <a href="/sign-in" className="font-medium text-white hover:underline">
-              Log in
-            </a>
+          <p className="text-center text-xs text-[#3d4a63]">
+            By continuing you agree to our Terms of Service and Privacy Policy.
           </p>
-        </motion.div>
+        </div>
       </div>
     </main>
-  );
-}
-
-function StepItem({
-  number,
-  text,
-  active = false,
-}: {
-  number: number;
-  text: string;
-  active?: boolean;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors ${
-        active
-          ? "border border-white bg-white text-black"
-          : "border-none bg-brand-gray text-white"
-      }`}
-    >
-      <span
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-          active ? "bg-black text-white" : "bg-white/10 text-white/40"
-        }`}
-      >
-        {number}
-      </span>
-      <span className="text-sm font-medium">{text}</span>
-    </div>
-  );
-}
-
-function SocialButton({
-  icon: Icon,
-  label,
-}: {
-  icon: LucideIcon;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-black text-sm font-medium text-white transition-colors hover:bg-white/5"
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </button>
-  );
-}
-
-function InputGroup({
-  label,
-  placeholder,
-  type,
-}: {
-  label: string;
-  placeholder: string;
-  type: string;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-white">{label}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="h-11 w-full rounded-xl border-none bg-brand-gray px-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
-      />
-    </div>
   );
 }
