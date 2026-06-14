@@ -1,18 +1,38 @@
-import Link from "next/link";
+"use client";
 
-export default function NotFound() {
+import { useEffect } from "react";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error("[Flowlytics Error]", error.message, error.digest);
+  }, [error]);
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-[var(--bg)] px-6 text-center">
-      <p className="font-display text-7xl font-black tracking-tight text-[var(--text)]">404</p>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center"
+      style={{ background: "#03050a" }}>
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-3xl"
+        style={{ background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.2)" }}>
+        ⚠️
+      </div>
       <div>
-        <h1 className="font-display text-xl font-bold text-[var(--text)]">Page not found</h1>
-        <p className="mt-2 font-mono text-sm text-[var(--text-mid)]">
-          We couldn&apos;t find that page.
+        <h1 className="text-2xl font-bold text-white">Something went wrong</h1>
+        <p className="mt-2 text-sm" style={{ color: "#8892aa", fontFamily: "monospace" }}>
+          {error.message || "An unexpected error occurred."}
         </p>
       </div>
-      <Link href="/" className="btn-primary">
-        Back to home
-      </Link>
+      <button
+        onClick={reset}
+        className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+        style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)" }}
+      >
+        Try again
+      </button>
     </div>
   );
 }
